@@ -59,3 +59,6 @@ exports.deleteUser = (req, res) => {
   res.status(204).send();
 };
 
+exports.findUserByEmail = (email) => {
+  return users.find(user => user.email === email);
+};
