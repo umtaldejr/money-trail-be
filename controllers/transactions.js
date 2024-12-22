@@ -32,16 +32,19 @@ exports.getTransactionById = (req, res) => {
 };
 
 exports.updateTransaction = async (req, res) => {
-  const { amount, type } = req.body;
+  const { amount, type, accountId } = req.body;
   const userId = req.user.id;
   const transactionIndex = transactions.findIndex(tx => tx.id === req.params.id && tx.userId === userId);
   if (transactionIndex === -1) {
     return res.status(404).json({ error: 'Transaction not found or access denied' });
   }
   const transaction = transactions[transactionIndex];
-  const account = accounts.find(acc => acc.id === transaction.accountId && acc.userId === userId);
-  if (!account) {
-    return res.status(404).json({ error: 'Account not found or access denied' });
+  if (accountId) {
+    const account = accounts.find(acc => acc.id === accountId && acc.userId === userId);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found or access denied' });
+    }
+    transaction.accountId = accountId;
   }
   const updatedTransaction = { ...transaction, amount: parseFloat(amount), type };
   transactions[transactionIndex] = updatedTransaction;
