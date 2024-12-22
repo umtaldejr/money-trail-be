@@ -39,7 +39,7 @@ describe('POST /accounts', () => {
     accountId = response.body.id;
   });
 
-  it('should reject access to account without token', async () => {
+  it('should reject access without token', async () => {
     const accountData = { name: 'Main Account', type: 'savings', balance: 1000 };
     const response = await request(app)
       .post('/accounts')
@@ -70,7 +70,7 @@ describe('GET /accounts/:id', () => {
     expect(response.body).toHaveProperty('name');
   });
 
-  it('should reject access to account without token', async () => {
+  it('should reject access without token', async () => {
     const response = await request(app)
       .get(`/accounts/${accountId}`);
     expect(response.statusCode).toBe(403);
@@ -98,7 +98,7 @@ describe('PUT /accounts/:id', () => {
     expect(response.body).toHaveProperty('balance', updateData.balance);
   });
 
-  it('should reject access to account without token', async () => {
+  it('should reject access without token', async () => {
     const updateData = { name: 'Updated Account', balance: 2000 };
     const response = await request(app)
       .put(`/accounts/${accountId}`)
@@ -131,7 +131,7 @@ describe('DELETE /accounts/:id', () => {
     expect(getResponse.body).toHaveProperty('error', 'Account not found or access denied');
   });
 
-  it('should reject access to account without token', async () => {
+  it('should reject access without token', async () => {
     const response = await request(app)
       .delete(`/accounts/${accountId}`);
     expect(response.statusCode).toBe(403);
