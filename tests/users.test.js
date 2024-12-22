@@ -82,8 +82,8 @@ describe('GET /users/:id', () => {
     const response = await request(app)
       .get(`/users/${users[0].id}`)
       .set('Authorization', `Bearer ${token}`);
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toHaveProperty('error', 'User not found');
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toHaveProperty('error', 'Access denied');
   });
 });
 
@@ -114,8 +114,8 @@ describe('PUT /users/:id', () => {
       .put(`/users/${users[0].id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(updateData);
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toHaveProperty('error', 'User not found');
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toHaveProperty('error', 'Access denied');
   });
 });
 
@@ -142,7 +142,7 @@ describe('DELETE /users/:id', () => {
     const response = await request(app)
       .delete(`/users/${users[0].id}`)
       .set('Authorization', `Bearer ${token}`);
-    expect(response.statusCode).toBe(404);
-    expect(response.body).toHaveProperty('error', 'User not found');
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toHaveProperty('error', 'Access denied');
   });
 });

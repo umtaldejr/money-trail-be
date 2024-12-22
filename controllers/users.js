@@ -23,6 +23,10 @@ exports.getAllUsers = (req, res) => {
 };
 
 exports.getUserById = (req, res) => {
+  const userId = req.user.id;
+  if (userId !== req.params.id) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
   const user = users.find(user => user.id === req.params.id);
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
@@ -31,13 +35,16 @@ exports.getUserById = (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
+  const userId = req.user.id;
+  if (userId !== req.params.id) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
   const { email, password } = req.body;
-  const { id: userId } = req.params;
-  const userIndex = users.findIndex(user => user.id === userId);
+  const userIndex = users.findIndex(user => user.id === req.params.id);
   if (userIndex === -1) {
     return res.status(404).json({ error: 'User not found' });
   }
-  const existingUser = users.find(user => user.email === email && user.id !== userId);
+  const existingUser = users.find(user => user.email === email && user.id !== req.params.id);
   if (existingUser) {
     return res.status(409).json({ error: 'Email already exists' });
   }
@@ -51,6 +58,10 @@ exports.updateUser = async (req, res) => {
 };
 
 exports.deleteUser = (req, res) => {
+  const userId = req.user.id;
+  if (userId !== req.params.id) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
   const userIndex = users.findIndex(user => user.id === req.params.id);
   if (userIndex === -1) {
     return res.status(404).json({ error: 'User not found' });
