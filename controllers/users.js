@@ -2,7 +2,6 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const { users } = require('../db');
 
-
 exports.createUser = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -33,21 +32,22 @@ exports.getUserById = (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const { email, password } = req.body;
-  const userIndex = users.findIndex(user => user.id === req.params.id);
+  const { id: userId } = req.params;
+  const userIndex = users.findIndex(user => user.id === userId);
   if (userIndex === -1) {
     return res.status(404).json({ error: 'User not found' });
   }
-  if (email) {
-    const existingUser = users.find(user => user.email === email);
-    if (existingUser && existingUser.id !== req.params.id) {
-      return res.status(400).json({ error: 'Email already exists' });
-    }
-    users[userIndex].email = email;
+  const existingUser = users.find(user => user.email === email && user.id !== userId);
+  if (existingUser) {
+    return res.status(409).json({ error: 'Email already exists' });
   }
-  if (password) {
-    users[userIndex].password = await bcrypt.hash(password, 10);
-  }
-  res.json({ id: users[userIndex].id, email: users[userIndex].email });
+  const updatedUser = {
+    ...users[userIndex],
+    ...(email && { email }),
+    ...(password && { password: await bcrypt.hash(password, 10) })
+  };
+  users[userIndex] = updatedUser;
+  res.json({ id: updatedUser.id, email: updatedUser.email });
 };
 
 exports.deleteUser = (req, res) => {
