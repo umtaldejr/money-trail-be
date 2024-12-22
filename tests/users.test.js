@@ -117,6 +117,16 @@ describe('PUT /users/:id', () => {
     expect(response.statusCode).toBe(403);
     expect(response.body).toHaveProperty('error', 'Access denied');
   });
+
+  it('should fail when email is already taken', async () => {
+    const updateData = { email: users[0].email };
+    const response = await request(app)
+      .put(`/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updateData);
+    expect(response.statusCode).toBe(409);
+    expect(response.body).toHaveProperty('error', 'Email already exists');
+  });
 });
 
 describe('DELETE /users/:id', () => {
