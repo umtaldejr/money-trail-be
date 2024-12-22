@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const usersRoutes = require('./routes/users');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -12,5 +14,8 @@ app.use(morgan('dev'));
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
+
+app.use('/users', usersRoutes);
+app.use('/auth', authRoutes);
 
 module.exports = app;
