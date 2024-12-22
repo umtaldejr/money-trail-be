@@ -34,10 +34,14 @@ exports.updateAccount = async (req, res) => {
   if (accountIndex === -1) {
     return res.status(404).json({ error: 'Account not found or access denied' });
   }
-  if (name) accounts[accountIndex].name = name;
-  if (type) accounts[accountIndex].type = type;
-  if (balance !== undefined) accounts[accountIndex].balance = parseFloat(balance);
-  res.json(accounts[accountIndex]);
+  const updatedAccount = {
+    ...accounts[accountIndex],
+    ...(name && { name }),
+    ...(type && { type }),
+    ...(balance !== undefined && { balance: parseFloat(balance) }),
+  };
+  accounts[accountIndex] = updatedAccount;
+  res.json(updatedAccount);
 };
 
 exports.deleteAccount = (req, res) => {
