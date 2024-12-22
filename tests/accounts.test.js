@@ -7,11 +7,13 @@ let users;
 let accounts;
 let token;
 let accountId;
+let otherAccountId;
 
 beforeAll(async () => {
   server = app.listen(3000);
   users = await seedUsers();
   accounts = seedAccounts();
+  otherAccountId = accounts.find(acc => acc.userId !== users[0].id).id;
 
   token = (await request(app)
     .post('/auth')
@@ -32,8 +34,18 @@ describe('POST /accounts', () => {
       .send(accountData);
     expect(response.statusCode).toBe(201);
     expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty('userId');
     expect(response.body).toHaveProperty('name', accountData.name);
     accountId = response.body.id;
+  });
+
+  it('should reject access to account without token', async () => {
+    const accountData = { name: 'Main Account', type: 'savings', balance: 1000 };
+    const response = await request(app)
+      .post('/accounts')
+      .send(accountData);
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toHaveProperty('error', 'Access denied');
   });
 });
 
@@ -64,6 +76,14 @@ describe('GET /accounts/:id', () => {
     expect(response.statusCode).toBe(403);
     expect(response.body).toHaveProperty('error', 'Access denied');
   });
+
+  it('should fail when requesting data from other user', async () => {
+    const response = await request(app)
+      .get(`/accounts/${otherAccountId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Account not found or access denied');
+  });
 });
 
 describe('PUT /accounts/:id', () => {
@@ -86,6 +106,16 @@ describe('PUT /accounts/:id', () => {
     expect(response.statusCode).toBe(403);
     expect(response.body).toHaveProperty('error', 'Access denied');
   });
+
+  it('should fail when updating data from other user', async () => {
+    const updateData = { name: 'Updated Account', balance: 2000 };
+    const response = await request(app)
+      .put(`/accounts/${otherAccountId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(updateData);
+    expect(response.statusCode).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Account not found or access denied');
+  });
 });
 
 describe('DELETE /accounts/:id', () => {
@@ -106,5 +136,13 @@ describe('DELETE /accounts/:id', () => {
       .delete(`/accounts/${accountId}`);
     expect(response.statusCode).toBe(403);
     expect(response.body).toHaveProperty('error', 'Access denied');
+  });
+
+  it('should fail when deleting data from other user', async () => {
+    const response = await request(app)
+      .delete(`/accounts/${otherAccountId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Account not found or access denied');
   });
 });
