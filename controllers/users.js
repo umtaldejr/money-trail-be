@@ -10,7 +10,7 @@ exports.createUser = async (req, res) => {
   }
   const existingUser = users.find(user => user.email === email);
   if (existingUser) {
-    return res.status(400).json({ error: 'Email already exists' });
+    return res.status(409).json({ error: 'Email already exists' });
   }
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = { id: uuidv4(), email, password: hashedPassword };
