@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-let accounts = [];
+const { accounts } = require('../db');
 
 exports.createAccount = async (req, res) => {
   const { name, type, balance } = req.body;
