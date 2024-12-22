@@ -13,7 +13,7 @@ afterAll((done) => {
   server.close(done);
 });
 
-describe('User and Authentication Setup', () => {
+describe('POST /users', () => {
   it('should create a new user', async () => {
     const userData = { email: 'testuser@example.com', password: 'password123' };
 
@@ -25,7 +25,9 @@ describe('User and Authentication Setup', () => {
     expect(response.body).toHaveProperty('id');
     expect(response.body).toHaveProperty('email', userData.email);
   });
+});
 
+describe('POST /auth', () => {
   it('should authenticate the user', async () => {
     const loginData = { email: 'testuser@example.com', password: 'password123' };
 
@@ -40,7 +42,7 @@ describe('User and Authentication Setup', () => {
   });
 });
 
-describe('Accounts CRUD Operations', () => {
+describe('POST /accounts', () => {
   it('should create a new account', async () => {
     const accountData = { name: 'Main Account', type: 'savings', balance: 1000 };
 
@@ -55,7 +57,9 @@ describe('Accounts CRUD Operations', () => {
 
     accountId = response.body.id;
   });
+});
 
+describe('GET /accounts', () => {
   it('should fetch all accounts for the authenticated user', async () => {
     const response = await request(app)
       .get('/accounts')
@@ -65,7 +69,9 @@ describe('Accounts CRUD Operations', () => {
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBeGreaterThanOrEqual(1);
   });
+});
 
+describe('GET /accounts/:id', () => {
   it('should fetch the account by ID', async () => {
     const response = await request(app)
       .get(`/accounts/${accountId}`)
@@ -83,7 +89,9 @@ describe('Accounts CRUD Operations', () => {
     expect(response.statusCode).toBe(403);
     expect(response.body).toHaveProperty('error', 'Access denied');
   });
+});
 
+describe(' /accounts/:id', () => {
   it('should update the account', async () => {
     const updateData = { name: 'Updated Account', balance: 2000 };
 
@@ -97,6 +105,19 @@ describe('Accounts CRUD Operations', () => {
     expect(response.body).toHaveProperty('balance', updateData.balance);
   });
 
+  it('should reject access to account without token', async () => {
+    const updateData = { name: 'Updated Account', balance: 2000 };
+
+    const response = await request(app)
+      .put(`/accounts/${accountId}`)
+      .send(updateData);
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toHaveProperty('error', 'Access denied');
+  });
+});
+
+describe('DELETE /accounts/:id', () => {
   it('should delete the account', async () => {
     const response = await request(app)
       .delete(`/accounts/${accountId}`)
@@ -110,5 +131,13 @@ describe('Accounts CRUD Operations', () => {
 
     expect(getResponse.statusCode).toBe(404);
     expect(getResponse.body).toHaveProperty('error', 'Account not found or access denied');
+  });
+
+  it('should reject access to account without token', async () => {
+    const response = await request(app)
+      .delete(`/accounts/${accountId}`);
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toHaveProperty('error', 'Access denied');
   });
 });
