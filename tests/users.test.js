@@ -1,14 +1,16 @@
 const request = require('supertest');
-const { v4: uuidv4 } = require('uuid');
 const app = require('../app');
+const { seedUsers } = require('./aux/seed');
 
 let server;
+let users;
 let userId;
 let userEmail;
 let token;
 
-beforeAll(() => {
+beforeAll(async () => {
   server = app.listen(3000);
+  users = await seedUsers();
 });
 
 afterAll((done) => {
@@ -78,7 +80,7 @@ describe('GET /users/:id', () => {
 
   it('should fail when requesting data from other user', async () => {
     const response = await request(app)
-      .get(`/users/${uuidv4()}`)
+      .get(`/users/${users[0].id}`)
       .set('Authorization', `Bearer ${token}`);
     expect(response.statusCode).toBe(404);
     expect(response.body).toHaveProperty('error', 'User not found');
@@ -109,7 +111,7 @@ describe('PUT /users/:id', () => {
   it('should fail when updating data from other user', async () => {
     const updateData = { email: 'updated@example.com', password: 'newpassword123' };
     const response = await request(app)
-      .put(`/users/${uuidv4()}`)
+      .put(`/users/${users[0].id}`)
       .set('Authorization', `Bearer ${token}`)
       .send(updateData);
     expect(response.statusCode).toBe(404);
@@ -138,7 +140,7 @@ describe('DELETE /users/:id', () => {
 
   it('should fail when deleting other user', async () => {
     const response = await request(app)
-      .delete(`/users/${uuidv4()}`)
+      .delete(`/users/${users[0].id}`)
       .set('Authorization', `Bearer ${token}`);
     expect(response.statusCode).toBe(404);
     expect(response.body).toHaveProperty('error', 'User not found');
