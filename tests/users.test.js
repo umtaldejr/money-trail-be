@@ -15,7 +15,7 @@ afterAll((done) => {
 });
 
 describe('POST /users', () => {
-  it('deve criar um novo usuário', async () => {
+  it('should create a new user', async () => {
     const userData = { email: 'test@example.com', password: 'password123' };
 
     const response = await request(app)
@@ -32,7 +32,7 @@ describe('POST /users', () => {
 });
 
 describe('POST /auth', () => {
-  it('deve autenticar o usuário', async () => {
+  it('should authenticate the user', async () => {
     const loginData = { email: 'test@example.com', password: 'password123' };
 
     const response = await request(app)
@@ -47,7 +47,7 @@ describe('POST /auth', () => {
 });
 
 describe('GET /users/:id', () => {
-  it('deve retornar o usuário', async () => {
+  it('should return the user', async () => {
     const response = await request(app)
       .get(`/users/${userId}`)
       .set('Authorization', `Bearer ${token}`);
@@ -57,7 +57,7 @@ describe('GET /users/:id', () => {
     expect(response.body).toHaveProperty('email', userEmail);
   });
 
-  it('deve rejeitar acesso sem token', async () => {
+  it('should reject access without token', async () => {
     const response = await request(app)
       .get(`/users/${userId}`);
 
@@ -67,8 +67,7 @@ describe('GET /users/:id', () => {
 });
 
 describe('PUT /users/:id', () => {
-
-  it('deve atualizar o usuário', async () => {
+  it('should update the user', async () => {
     const updateData = { email: 'updated@example.com', password: 'newpassword123' };
 
     const response = await request(app)
@@ -83,7 +82,7 @@ describe('PUT /users/:id', () => {
     userEmail = response.body.email;
   });
 
-  it('deve rejeitar acesso sem token', async () => {
+  it('should reject access without token', async () => {
     const response = await request(app)
       .put(`/users/${userId}`)
       .send({ email: 'unauthorized@example.com' });
@@ -94,7 +93,7 @@ describe('PUT /users/:id', () => {
 });
 
 describe('DELETE /users/:id', () => {
-  it('deve deletar o usuário', async () => {
+  it('should delete the user', async () => {
     const response = await request(app)
       .delete(`/users/${userId}`)
       .set('Authorization', `Bearer ${token}`);
@@ -109,7 +108,7 @@ describe('DELETE /users/:id', () => {
     expect(getResponse.body).toHaveProperty('error', 'User not found');
   });
 
-  it('deve rejeitar acesso sem token', async () => {
+  it('should reject access without token', async () => {
     const response = await request(app).delete(`/users/${userId}`);
     expect(response.statusCode).toBe(403);
     expect(response.body).toHaveProperty('error', 'Access denied');
