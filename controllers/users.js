@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+const { users } = require('../db');
 
-let users = [];
 
 exports.createUser = async (req, res) => {
   const { email, password } = req.body;
