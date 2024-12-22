@@ -76,14 +76,14 @@ describe('POST /transactions', () => {
     transactionId = response.body.id;
   });
 
-  it('should return 401 for unauthenticated request', async () => {
+  it('should reject access to account without token', async () => {
     const transactionData = { accountId, amount: 100, type: 'deposit' };
 
     const response = await request(app)
       .post('/transactions')
       .send(transactionData);
 
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(403);
   });
 });
 
@@ -97,11 +97,11 @@ describe('GET /transactions', () => {
     expect(response.body).toBeInstanceOf(Array);
   });
 
-  it('should return 401 for unauthenticated request', async () => {
+  it('should reject access to account without token', async () => {
     const response = await request(app)
       .get('/transactions');
 
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(403);
   });
 });
 
@@ -115,11 +115,11 @@ describe('GET /transactions/:id', () => {
     expect(response.body).toHaveProperty('id', transactionId);
   });
 
-  it('should return 401 for unauthenticated request', async () => {
+  it('should reject access to account without token', async () => {
     const response = await request(app)
       .get(`/transactions/${transactionId}`);
 
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(403);
   });
 });
 
@@ -137,14 +137,14 @@ describe('PUT /transactions/:id', () => {
     expect(response.body).toHaveProperty('type', 'withdrawal');
   });
 
-  it('should return 401 for unauthenticated request', async () => {
+  it('should reject access to account without token', async () => {
     const updateData = { amount: 200, type: 'withdrawal' };
 
     const response = await request(app)
       .put(`/transactions/${transactionId}`)
       .send(updateData);
 
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(403);
   });
 });
 
@@ -157,10 +157,10 @@ describe('DELETE /transactions/:id', () => {
     expect(response.statusCode).toBe(204);
   });
 
-  it('should return 401 for unauthenticated request', async () => {
+  it('should reject access to account without token', async () => {
     const response = await request(app)
       .delete(`/transactions/${transactionId}`);
 
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(403);
   });
 });
