@@ -1,6 +1,11 @@
 const request = require('supertest');
 const app = require('../app');
-const server = require('../server');
+
+let server;
+
+beforeAll(() => {
+  server = app.listen(3000);
+});
 
 afterAll((done) => {
   server.close(done);
