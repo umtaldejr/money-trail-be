@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { transactions } = require('../db');
+const { transactions, accounts } = require('../db');
 
 exports.createTransaction = async (req, res) => {
   const { accountId, amount, type } = req.body;
@@ -7,7 +7,11 @@ exports.createTransaction = async (req, res) => {
   if (!accountId || !amount || !type) {
     return res.status(400).json({ error: 'Account ID, amount, and type are required' });
   }
-  const newTransaction = { id: uuidv4(), accountId, amount: parseFloat(amount), type, userId };
+  const account = accounts.find(acc => acc.id === accountId && acc.userId === userId);
+  if (!account) {
+    return res.status(404).json({ error: 'Account not found or access denied' });
+  }
+  const newTransaction = { id: uuidv4(), accountId, amount: parseFloat(amount), type, userId, date: new Date() };
   transactions.push(newTransaction);
   res.status(201).json(newTransaction);
 };
@@ -34,7 +38,12 @@ exports.updateTransaction = async (req, res) => {
   if (transactionIndex === -1) {
     return res.status(404).json({ error: 'Transaction not found or access denied' });
   }
-  const updatedTransaction = { ...transactions[transactionIndex], amount: parseFloat(amount), type };
+  const transaction = transactions[transactionIndex];
+  const account = accounts.find(acc => acc.id === transaction.accountId && acc.userId === userId);
+  if (!account) {
+    return res.status(404).json({ error: 'Account not found or access denied' });
+  }
+  const updatedTransaction = { ...transaction, amount: parseFloat(amount), type };
   transactions[transactionIndex] = updatedTransaction;
   res.json(updatedTransaction);
 };
