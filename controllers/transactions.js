@@ -1,8 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
-const { transactions, accounts } = require('../db');
+const { transactions, accounts, categories } = require('../db');
 
 exports.createTransaction = async (req, res) => {
-  const { accountId, amount, type } = req.body;
+  const { accountId, amount, type, categoryId } = req.body;
   const userId = req.user.id;
   if (!accountId || !amount || !type) {
     return res.status(400).json({ error: 'Account ID, amount, and type are required' });
@@ -11,9 +11,23 @@ exports.createTransaction = async (req, res) => {
   if (!account) {
     return res.status(404).json({ error: 'Account not found or access denied' });
   }
-  const newTransaction = { id: uuidv4(), accountId, amount: parseFloat(amount), type, userId, date: new Date() };
-  transactions.push(newTransaction);
-  res.status(201).json(newTransaction);
+  if (categoryId) {
+    const category = categories.find(cat => cat.id === categoryId && cat.userId === userId);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found or access denied' });
+    }
+  }
+  const transaction = {
+    id: uuidv4(),
+    type,
+    amount: parseFloat(amount),
+    date: new Date(),
+    userId,
+    accountId,
+    categoryId: categoryId || null,
+  };
+  transactions.push(transaction);
+  res.status(201).json(transaction);
 };
 
 exports.getAllTransactions = (req, res) => {
@@ -32,7 +46,7 @@ exports.getTransactionById = (req, res) => {
 };
 
 exports.updateTransaction = async (req, res) => {
-  const { amount, type, accountId } = req.body;
+  const { amount, type, accountId, categoryId } = req.body;
   const userId = req.user.id;
   const transactionIndex = transactions.findIndex(tx => tx.id === req.params.id && tx.userId === userId);
   if (transactionIndex === -1) {
@@ -44,9 +58,20 @@ exports.updateTransaction = async (req, res) => {
     if (!account) {
       return res.status(404).json({ error: 'Account not found or access denied' });
     }
-    transaction.accountId = accountId;
   }
-  const updatedTransaction = { ...transaction, amount: parseFloat(amount), type };
+  if (categoryId) {
+    const category = categories.find(cat => cat.id === categoryId && cat.userId === userId);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found or access denied' });
+    }
+  }
+  const updatedTransaction = {
+    ...transaction,
+    ...(accountId && { accountId }),
+    ...(categoryId && { categoryId }),
+    ...(amount !== undefined && { amount: parseFloat(amount) }),
+    ...(type && { type }),
+  };
   transactions[transactionIndex] = updatedTransaction;
   res.json(updatedTransaction);
 };

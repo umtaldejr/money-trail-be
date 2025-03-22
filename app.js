@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const usersRoutes = require('./routes/users');
 const authRoutes = require('./routes/auth');
 const accountRoutes = require('./routes/accounts');
+const categoriesRoutes = require('./routes/categories');
 const transactionRoutes = require('./routes/transactions');
 
 const app = express();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 app.use('/users', usersRoutes);
 app.use('/auth', authRoutes);
 app.use('/accounts', accountRoutes);
+app.use('/categories', categoriesRoutes);
 app.use('/transactions', transactionRoutes);
 
 module.exports = app;

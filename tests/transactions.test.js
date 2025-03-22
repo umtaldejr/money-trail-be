@@ -1,25 +1,31 @@
 const request = require('supertest');
 const app = require('../app');
-const { seedUsers, seedAccounts, seedTransactions, USER_CREDENTIALS } = require('./aux/seed');
+const { seedUsers, seedAccounts, seedCategories, seedTransactions, USER_CREDENTIALS } = require('./aux/seed');
 
 let server;
 let users;
 let accounts;
+let categories;
 let transactions;
 let token;
 let accountId;
+let categoryId;
 let transactionId;
 let otherAccountId;
+let otherCategoryId;
 let otherTransactionId;
 
 beforeAll(async () => {
   server = app.listen(3000);
   users = await seedUsers();
   accounts = seedAccounts();
+  categories = seedCategories();
   transactions = seedTransactions();
-  accountId = accounts.find(ac => ac.userId === users[0].id).id;
-  otherAccountId = accounts.find(ac => ac.userId !== users[0].id).id;
-  otherTransactionId = transactions.find(tr => tr.userId !== users[0].id).id;
+  accountId = accounts.find(account => account.userId === users[0].id).id;
+  otherAccountId = accounts.find(account => account.userId !== users[0].id).id;
+  categoryId = categories.find(category => category.userId === users[0].id).id;
+  otherCategoryId = categories.find(category => category.userId !== users[0].id).id;
+  otherTransactionId = transactions.find(transaction => transaction.userId !== users[0].id).id;
 
   token = (await request(app)
     .post('/auth')
@@ -33,7 +39,7 @@ afterAll((done) => {
 
 describe('POST /transactions', () => {
   it('should create a new transaction', async () => {
-    const transactionData = { accountId, amount: 100, type: 'deposit' };
+    const transactionData = { accountId, categoryId, amount: 100, type: 'deposit' };
     const response = await request(app)
       .post('/transactions')
       .set('Authorization', `Bearer ${token}`)
@@ -43,6 +49,8 @@ describe('POST /transactions', () => {
     expect(response.body).toHaveProperty('userId');
     expect(response.body).toHaveProperty('accountId');
     expect(response.body).toHaveProperty('accountId', accountId);
+    expect(response.body).toHaveProperty('categoryId');
+    expect(response.body).toHaveProperty('categoryId', categoryId);
 
     transactionId = response.body.id;
   });
@@ -54,6 +62,17 @@ describe('POST /transactions', () => {
       .send(transactionData);
     expect(response.statusCode).toBe(403);
     expect(response.body).toHaveProperty('error', 'Access denied');
+  });
+  
+  it('should reject transaction with invalid categoryId', async () => {
+    const transactionData = { accountId, categoryId: otherCategoryId, amount: 100, type: 'deposit' };
+    const response = await request(app)
+      .post('/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send(transactionData);
+
+    expect(response.statusCode).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Category not found or access denied');
   });
 });
 

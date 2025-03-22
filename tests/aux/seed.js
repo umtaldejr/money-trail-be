@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
-const { users, accounts, transactions } = require('../../db');
+const { users, accounts, categories, transactions } = require('../../db');
 
 const USER_CREDENTIALS = {
   email: 'test1@example.com',
@@ -59,6 +59,18 @@ const seedAccounts = () => {
   return accountsArray;
 };
 
+const seedCategories = () => {
+  const categoryArray = [
+    { id: uuidv4(), name: 'Food', userId: users[0].id, parentId: null },
+    { id: uuidv4(), name: 'Groceries', userId: users[0].id, parentId: null },
+    { id: uuidv4(), name: 'Food', userId: users[1].id, parentId: null },
+    { id: uuidv4(), name: 'Groceries', userId: users[1].id, parentId: null },
+  ];
+
+  categories.push(...categoryArray);
+  return categoryArray;
+};
+
 const seedTransactions = () => {
   const transactionsArray = [
     {
@@ -91,4 +103,4 @@ const seedTransactions = () => {
   return transactionsArray;
 };
 
-module.exports = { seedUsers, seedAccounts, seedTransactions, USER_CREDENTIALS };
+module.exports = { seedUsers, seedAccounts, seedCategories, seedTransactions, USER_CREDENTIALS };
