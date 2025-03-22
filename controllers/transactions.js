@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { transactions, accounts } = require('../db');
+const { transactions, accounts, categories } = require('../db');
 
 exports.createTransaction = async (req, res) => {
   const { accountId, amount, type, categoryId } = req.body;

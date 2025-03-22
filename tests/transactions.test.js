@@ -5,6 +5,7 @@ const { seedUsers, seedAccounts, seedCategories, seedTransactions, USER_CREDENTI
 let server;
 let users;
 let accounts;
+let categories;
 let transactions;
 let token;
 let accountId;

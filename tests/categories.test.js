@@ -5,6 +5,7 @@ const { seedUsers, seedCategories, USER_CREDENTIALS } = require('./aux/seed');
 let server;
 let users;
 let token;
+let categories;
 let categoryId;
 let otherCategoryId;
 
