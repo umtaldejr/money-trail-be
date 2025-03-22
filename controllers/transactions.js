@@ -44,9 +44,13 @@ exports.updateTransaction = async (req, res) => {
     if (!account) {
       return res.status(404).json({ error: 'Account not found or access denied' });
     }
-    transaction.accountId = accountId;
   }
-  const updatedTransaction = { ...transaction, amount: parseFloat(amount), type };
+  const updatedTransaction = {
+    ...transaction,
+    ...(accountId && { accountId }),
+    ...(amount !== undefined && { amount: parseFloat(amount) }),
+    ...(type && { type }),
+  };
   transactions[transactionIndex] = updatedTransaction;
   res.json(updatedTransaction);
 };
