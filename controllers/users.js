@@ -11,14 +11,14 @@ exports.createUser = async (req, res) => {
   if (existingUser) {
     return res.status(409).json({ error: 'Email already exists' });
   }
-  const user = {
+  const newUser = {
     id: uuidv4(),
     email,
     password: await bcrypt.hash(password, 10),
   };
-  users.push(user);
+  users.push(newUser);
   // eslint-disable-next-line no-unused-vars
-  const { password: _password, ...safeUser } = user;
+  const { password: _password, ...safeUser } = newUser;
   res.status(201).json(safeUser);
 };
 
