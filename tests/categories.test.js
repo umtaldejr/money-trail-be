@@ -13,7 +13,7 @@ beforeAll(async () => {
   server = app.listen(3000);
   users = await seedUsers();
   categories = await seedCategories();
-  otherCategoryId = categories.find(cat => cat.userId !== users[0].id).id;
+  otherCategoryId = categories.find(category => category.userId !== users[0].id).id;
 
   token = (await request(app)
     .post('/auth')

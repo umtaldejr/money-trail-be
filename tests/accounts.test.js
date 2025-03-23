@@ -4,8 +4,8 @@ const { seedUsers, seedAccounts, USER_CREDENTIALS } = require('./aux/seed');
 
 let server;
 let users;
-let accounts;
 let token;
+let accounts;
 let accountId;
 let otherAccountId;
 
@@ -13,7 +13,7 @@ beforeAll(async () => {
   server = app.listen(3000);
   users = await seedUsers();
   accounts = seedAccounts();
-  otherAccountId = accounts.find(acc => acc.userId !== users[0].id).id;
+  otherAccountId = accounts.find(account => account.userId !== users[0].id).id;
 
   token = (await request(app)
     .post('/auth')
