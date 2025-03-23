@@ -23,7 +23,10 @@ exports.createUser = async (req, res) => {
 };
 
 exports.getAllUsers = (req, res) => {
-  const safeUsers = users.map(({ id, email }) => ({ id, email }));
+  const safeUsers = users
+    .filter(user => user.id === req.user.id)
+    // eslint-disable-next-line no-unused-vars
+    .map(({ password: _password, ...safeUser }) => safeUser);
   res.json(safeUsers);
 };
 

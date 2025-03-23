@@ -61,6 +61,25 @@ describe('POST /auth', () => {
   });
 });
 
+describe('GET /users', () => {
+  it('should get only the user', async () => {
+    const response = await request(app)
+      .get('/users')
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body[0]).toHaveProperty('id', userId);
+    expect(response.body[0]).toHaveProperty('email', userEmail);
+  });
+
+  it('should reject access without token', async () => {
+    const response = await request(app)
+      .get('/users');
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toHaveProperty('error', 'Access denied');
+  });
+});
+
 describe('GET /users/:id', () => {
   it('should return the user', async () => {
     const response = await request(app)
