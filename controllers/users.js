@@ -11,10 +11,15 @@ exports.createUser = async (req, res) => {
   if (existingUser) {
     return res.status(409).json({ error: 'Email already exists' });
   }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = { id: uuidv4(), email, password: hashedPassword };
-  users.push(newUser);
-  res.status(201).json({ id: newUser.id, email: newUser.email });
+  const user = {
+    id: uuidv4(),
+    email,
+    password: await bcrypt.hash(password, 10),
+  };
+  users.push(user);
+  // eslint-disable-next-line no-unused-vars
+  const { password: _password, ...safeUser } = user;
+  res.status(201).json(safeUser);
 };
 
 exports.getAllUsers = (req, res) => {
@@ -31,7 +36,9 @@ exports.getUserById = (req, res) => {
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
-  res.json({ id: user.id, email: user.email });
+  // eslint-disable-next-line no-unused-vars
+  const { password: _password, ...safeUser } = user;
+  res.json(safeUser);
 };
 
 exports.updateUser = async (req, res) => {
@@ -54,7 +61,9 @@ exports.updateUser = async (req, res) => {
     ...(password && { password: await bcrypt.hash(password, 10) })
   };
   users[userIndex] = updatedUser;
-  res.json({ id: updatedUser.id, email: updatedUser.email });
+  // eslint-disable-next-line no-unused-vars
+  const { password: _password, ...safeUser } = updatedUser;
+  res.json(safeUser);
 };
 
 exports.deleteUser = (req, res) => {
